@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        
+        <link href="css/reset.css" rel="stylesheet" type="text/css" />
+        <link href="css/text.css" rel="stylesheet" type="text/css" />
+        <link href="css/style.css" rel="stylesheet" type="text/css" />
+        
+        <title></title>
+    </head>
+    <body>
+    	<input type="hidden" name="login_check_hidden" id="login_check_hidden" value="0" />
+        <input type="hidden" name="login_User_hidden" id="login_User_hidden" value="0" />
+        
+        <div id="loading_div" style="display:none;">
+        	<img src="images/loading.gif" />
+        </div>
+        
+        <div class="main" >
+            <div class="homeHeader">
+                <div class="logo" ><a href="javascript:void(0);" onClick="return displayDiv('main_home_div');"><img src="images/logoHome.png"></a>
+                </div>
+                <div class="homeIcon"><a href="javascript:void(0);" onClick="return displayDiv('main_home_div');"><img src="images/home.png"></a>
+                </div>
+            </div>
+			<div id="main_home_div">
+                <div class="container">
+                	<div class="naviOption">
+                        <ul>
+                            <li><a href="javascript:void(0);" onClick="return displaySearchDiv('member_search_div');"><span><img src="images/neviSearch.png"></span><br>
+                            Search</a></li>
+                            <li><a href="javascript:void(0);" onClick="return displayUsersProfile();"><span><img src="images/neviLogin.png"></span><br>
+                            <span id="login_home_span">Login</span> </a></li>
+                            <li class="marginL0"  id="register_button_li" ><a href="javascript:void(0);" onClick="return displayRegistrationDiv('member_register_step1_div'); //displayInviteDiv('invite_friend_div'); //  "><span><img src="images/neviRagister.png"></span><br>
+                            Register</a></li>
+                            <li class="marginL0" id="invite_button_li" style="display:none;"><a href="javascript:void(0);" onClick="return displayInviteDiv('invite_friend_div');"><span><img src="images/invite.png"></span><br>
+                            Invite</a></li>
+                            <li><a href="javascript:void(0);" onClick="return displayEmbassyDiv('embassy_div');"><span><img src="images/neviEmbacy.png"></span><br>
+                            Embassy</a></li>
+                            <li id="logout_button_li" style="display:none;"><a href="javascript:void(0);" onClick="return displayHomePage('embassy_div');"><span><img src="images/logout.png"></span><br>
+                                Logout</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                       <script>
+					   	var globalcontrolID;
+						function onfileUpload(controlID) {
+							globalcontrolID=controlID;
+							// Retrieve image file location from specified source
+							navigator.camera.getPicture(
+								uploadPhoto,
+								function(message) { 
+									alert('You did not choose any image.'); 
+								},
+								{
+									quality         : 10,
+									destinationType : navigator.camera.DestinationType.FILE_URI,
+									sourceType      : navigator.camera.PictureSourceType.PHOTOLIBRARY,
+									encodingType    : navigator.camera.EncodingType.PNG,
+								}
+							);
+						}
+				
+						function uploadPhoto(imageURI) {
+							var options = new FileUploadOptions();
+							options.fileKey="file";
+							options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
+							options.mimeType="image/jpeg";
+							options.headers = {
+								Connection: "close"
+							}
+							options.chunkedMode = false;
+							
+							//window.resolveLocalFileSystemURI("file:///android_asset/www/foo.html", onResolveSuccess, onFail);
+							if (imageURI.substring(0,21)=="content://com.android") {
+							  photo_split=imageURI.split("%3A");
+							  imageURI="content://media/external/images/media/"+photo_split[1];
+							}
+							
+							//console.log(imageURI);
+							//alert("imageURI:"+imageURI+":FN:"+options.fileName);
+							
+							document.getElementById(globalcontrolID).src = imageURI;
+				
+							var params = {};
+							params.value1 = "test";
+							params.value2 = "param";
+				
+							options.params = params;
+				
+							var ft = new FileTransfer();
+							ft.upload(imageURI, encodeURI(sitePath+"phd911/APIs/checkurl.php?action=uploadfile"), win, fail, options,true);
+						}
+				
+						function win(r) 
+						{
+							var data=r.response;
+							var arrRes=data.split("|~|");
+							//alert(data);
+							
+							if(arrRes[0]=="SUCCESS")
+							{
+								document.getElementById(globalcontrolID+"_hidden").value=arrRes[1];
+							}
+							else
+							{
+								alert(arrRes[1]);
+							}
+//alert(":"+r.response.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue+":");
+//							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+//							{
+//								document.getElementById(globalcontrolID+"_hidden").value=data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue;
+//								
+//								alert(document.getElementById(globalcontrolID+"_hidden").value);
+//								
+//								globalcontrolID="";
+//							}
+//							else
+//							{
+//								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+//							}	
+								
+//							console.log("Code = " + r.responseCode);
+//							console.log("Response = " + r.response);
+//							//alert("Response = " + r.response);
+//							console.log("Sent = " + r.bytesSent);
+						}
+				
+						function fail(error) {
+							alert("An error has occurred: Code = " + error.code);
+							//console.log("upload error source " + error.source);
+//							console.log("upload error target " + error.target);
+						}
+						</script>
+                    </div>
+                </div>
+                <div class="clear"></div> 
+            </div>
+
+            <div id="member_search_div" style="display:none;">
+                <div class="container">
+                    <form method="post" id="search_form" name="search_form" >
+                        <h2>View Member Profile</h2>
+                        <input type="text" placeholder="Member ID" class="boxSizing" id="member_id_text" name="member_id_text" />
+                        <input type="text" placeholder="Keyword" class="boxSizing"  id="keyword_text" name="keyword_text" />
+                        <p><small>*Please note that the Member ID and Keyword are case sensitve.</small></p>
+                        <input type="button" value="Search" class="inputBtn" onclick="return searchValidation();" />
+                    </form>
+                    <div id="result_div"></div>
+                </div>
+    
+                <div class="clear"></div> 
+            </div>
+            
+            <div id="member_login_div" style="display:none;">
+                <div class="container">
+                    <form method="post" id="login_form" name="login_form" >
+                        <h2>Member Login</h2>
+                        <input type="text" placeholder="Member ID" class="boxSizing" id="login_member_id_text" name="member_id_text" />
+                        <input type="password" placeholder="Password" class="boxSizing"  id="login_keyword_text" name="keyword_text" />
+                        <div class="clear"></div> 
+                        <input type="button" value="Log in" class="inputBtn" onclick="return loginValidation();" />
+                    </form>
+                    <div id="result_div"></div>
+                </div>
+    
+                <div class="clear"></div> 
+            </div>
+
+            <div id="member_register_step1_div" style="display:none;">
+            	<div class="container">
+                	
+            		<div class="pager">
+                    	<br>
+                        <!--<ul>
+                        	<li><img src="images/pager.png"></li>
+                        </ul>-->
+                    </div>
+            
+                    <form enctype="multipart/form-data"  method="post" id="signup_form" name="signup_form" >
+                    	<input type="text" placeholder="Username *" class="boxSizing" id="signup_username_text" name="signup_username_text" onBlur="return checkExisting('username','signup_username_text');">
+                        <input type="hidden" valie="0" name="signup_username_hidden" id="signup_username_hidden" />
+                        <input type="text" placeholder="Email Address *" class="boxSizing" id="signup_email_text" name="signup_email_text">
+                        <input type="hidden" valie="0" name="signup_email_hidden" id="signup_email_hidden" />
+                        <input type="text" placeholder="First Name *" class="boxSizing" id="signup_firstname_text" name="signup_firstname_text">
+                        <input type="text" placeholder="First Name in Native Lang" class="boxSizing" id="signup_firstname_native_text" name="signup_firstname_native_text" >
+                        <input type="text" placeholder="Last Name *" class="boxSizing" id="signup_lastname_text" name="signup_lastname_text">
+                        <input type="text" placeholder="Last Name in Native Lang" class="boxSizing" id="signup_lastname_native_text" name="signup_lastname_native_text">
+
+                        <select id="signup_dob_day_select" name="signup_dob_day_select">
+                        	<option value="">-Day-</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                            
+                        </select>
+                        <select id="signup_dob_month_select" name="signup_dob_month_select">
+                        	<option value="">-Month-</option>
+                            <option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                        </select>
+                        <select id="signup_dob_year_select" name="signup_dob_year_select">
+                        	<option value="">-Year-</option>
+                        </select>
+                        
+                        <input type="text" placeholder="Passport / ID *" class="boxSizing" id="signup_passport_text" name="signup_passport_text">
+                        <!--<input type="file" name="signup_passport_file" id="signup_passport_file" style="width: 80%" />-->
+                        
+                        <input type="button" onClick="return onfileUpload('signup_passport_file')" value="Upload Scanned ID" class="uploadBtn" />
+                        <img src="" id="signup_passport_file" height="120px" width="120px" />
+                        <input type="hidden" name="signup_passport_file_hidden" id="signup_passport_file_hidden" value="1" />
+                
+                        <div class="radio">
+                            <label><input type="radio" name="signup_gender_radio" id="signup_gender_male_radio" value="Male"> <span>Male</span></label>
+                            <label><input type="radio"  name="signup_gender_radio" id="signup_gender_female_radio" value="Female"> <span>Female</span></label>
+                        </div>
+                        <br>
+                        <div class="clear"></div> 
+                
+                        <textarea placeholder="Address *" class="boxSizing" name="signup_address_textarea" id="signup_address_textarea" ></textarea>
+                        <textarea placeholder="Address in Native Language" class="boxSizing"  name="signup_address_native_textarea" id="signup_address_native_textarea"></textarea>
+                        <select id="signup_country_select" name="signup_country_select">
+                        	<option value="">-Country-</option>
+                        </select>
+                        <select id="signup_nationality_select" name="signup_nationality_select">
+                        	<option value="">-Nationality-</option>
+                        </select>
+                        <input type="text" placeholder="Contact Number" class="boxSizing" name="signup_contact_text" id="signup_contact_text">
+                        <input type="text" placeholder="Home Number" class="boxSizing" name="signup_home_text" id="signup_home_text">
+                        <input type="text" placeholder="Office Number" class="boxSizing" name="signup_office_text" id="signup_office_text">
+                
+                        <div class="clear"></div> 
+                        <input type="button" value="Sign Up" class="inputBtn" onclick="return signupValidation();">
+                    </form>
+            	</div>
+            	<div class="clear"></div>  
+            </div>
+            
+            <div id="embassy_div" style="display:none;">
+                <div class="container">
+                	<br>
+                    <select id="ambassy_country_select" name="ambassy_country_select" class="big-select" onChange="return openAmbassyPage();">
+                    	<option value="" selected="selected">-- Please Select Country --</option>
+                    </select>
+                    <div id="result_div"></div>
+                </div>
+    
+                <div class="clear"></div> 
+            </div>
+            
+            <div id="profile_member_login_step1_div" style="display:none;">
+            	<div class="container">
+            		<div class="pager">
+                        <ul>
+                        	<li><img src="images/pager.png"></li>
+                        </ul>
+                    </div>
+                    <form enctype="multipart/form-data"  method="post" id="profile_member_step1_form" name="profile_member_step1_form" >
+                        <div  class="memberProfile">
+                        	<label>Member ID *</label>	
+                            <input type="text" placeholder="Member ID *" class="boxSizing" id="profile_member_id_basic" name="profile_member_id_basic" onBlur="return checkExisting('username','profile_member_id_basic');" value="">
+                            <input type="hidden" name="profile_username_hidden" id="profile_username_hidden" value="1"/>
+                            
+                            <label>Email Address *</label>	
+                            <input type="text" placeholder="Email Address *" class="boxSizing" id="profile_email_id_basic" name="profile_email_id_basic" value="">
+                            <div class="userImage"><span id="" style="height:120px;"><a href="javascript:void(0)" onclick="return onfileUpload('profile_user_image_basic')"><img src="" id="profile_user_image_basic" alt="image" /></a></span></div>
+                            <input type="hidden" name="profile_user_image_basic_hidden" id="profile_user_image_basic_hidden" value="" />
+                            
+    						<input type="hidden" name="form_type" id="form_type" value="step1">
+                            <input type="hidden" name="userID" id="userID" value="">
+                        </div>
+                        <div>
+                            <div class="clear"></div> 
+                            <input type="button" value="Save" class="inputBtn" onclick="return validateStep1();">
+                            <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('profile_member_login_step2_div');">
+                        </div>
+                    </form>
+            	</div>
+            	<div class="clear"></div>  
+            </div>
+            
+            <div id="profile_member_login_step2_div" style="display:none;">
+            	<div class="container">
+            		<div class="pager">
+                        <ul>
+                        	<li><img src="images/pager2.png"></li>
+                        </ul>
+                    </div>
+                 <form enctype="multipart/form-data"  method="post" id="profile_member_step2_form" name="profile_member_step2_form" >
+                    <div class="memberProfile">
+                    	<label>First Name *</label>
+                    	<input type="text" placeholder="First Name *" class="boxSizing" id="profile_first_name_basic" name="profile_first_name_basic">
+                        <label>First Name in Native Language</label>
+                        <input type="text" placeholder="First Name in Native Language" class="boxSizing" id="profile_first_name_native_basic" name="profile_first_name_native_basic">
+                        <label>Last Name *</label>
+                        <input type="text" placeholder="Last Name *" class="boxSizing" id="profile_last_name_basic" name="profile_last_name_basic">
+                        <label>Last Name in Native Language</label>
+                        <input type="text" placeholder="Last Name in Native Language" class="boxSizing" id="profile_last_name_native_basic" name="profile_last_name_native_basic">
+                        <label>Day of Birth</label>
+                        <select id="profile_dob_day_select" name="profile_dob_day_select">
+                        	<option value="">-Day-</option>
+                            <option value="01">1</option>
+                            <option value="02">2</option>
+                            <option value="03">3</option>
+                            <option value="04">4</option>
+                            <option value="05">5</option>
+                            <option value="06">6</option>
+                            <option value="07">7</option>
+                            <option value="08">8</option>
+                            <option value="09">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                            
+                        </select>
+                        <label>Month of Birth</label>
+                        <select id="profile_dob_month_select" name="profile_dob_month_select">
+                        	<option value="">-Month-</option>
+                            <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                        </select>
+                        <label>Year of Birth</label>
+                        <select id="profile_dob_year_select" name="profile_dob_year_select">
+                        	<option value="">-Year-</option>
+                        </select>
+                        <label>Passport / ID *</label>
+                        <input type="text" placeholder="Passport / ID *" class="boxSizing" id="profile_passport_id_basic" name="profile_passport_id_basic">
+                        <label>Scan Copy of Passport / ID *</label>
+                        <div class="userImage"><span id=""><a href="javascript:void(0)" onclick="return onfileUpload('profile_user_passport_basic')"><img src="" id="profile_user_passport_basic" alt="image"/></a></span></div>
+                        <input type="hidden" name="profile_user_passport_basic_hidden" id="profile_user_passport_basic_hidden" value="" />
+                        
+                        <label>Gender</label>
+                        <div class="radio">
+                            <label><input type="radio" name="profile_gender_radio" id="profile_gender_male_radio" value="Male"> <span>Male</span></label>
+                            <label><input type="radio"  name="profile_gender_radio" id="profile_gender_female_radio" value="Female"> <span>Female</span></label>
+                        </div>
+                        <div class="clear"></div> 
+                        <label>Address *</label>
+                        <textarea placeholder="Address *" class="boxSizing" name="profile_address_basic" id="profile_address_basic" ></textarea>
+                        <label>Address in Native Language </label>
+                        <textarea placeholder="Address in Native Language" class="boxSizing"  name="profile_address_native_basic" id="profile_address_native_basic"></textarea>
+                        <label>Country</label>
+                        <select id="profile_country_select" name="profile_country_select">
+                        	<option value="">-Country-</option>
+                        </select>
+                        <label>Nationality</label>
+                        <select id="profile_nationality_select" name="profile_nationality_select">
+                        	<option value="">-Nationality-</option>
+                        </select>
+                        <label>Contact Number</label>
+                        <input type="text" placeholder="Contact Number" class="boxSizing" name="profile_contact_number_basic" id="profile_contact_number_basic">
+                        <label>Home Number</label>
+                        <input type="text" placeholder="Home Number" class="boxSizing" name="profile_home_number_basic" id="profile_home_number_basic">
+                        <label>Office Number</label>
+                        <input type="text" placeholder="Office Number" class="boxSizing" name="profile_office_number_basic" id="profile_office_number_basic">
+                    </div>
+                    		<input type="hidden" name="form_type" id="form_type" value="step2">
+                            <input type="hidden" name="userID1" id="userID1" value="">
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('profile_member_login_step1_div');">
+                        <input type="button" value="Save" class="inputBtn" onclick="return validateStep2();">
+                        <input type="button" value="Next" class="inputBtn nxtBtn" onclick="return displayDiv('profile_member_login_step3_div');"  >
+                    </div>
+                </form>
+            	</div>
+            	<div class="clear"></div>  
+            </div>
+            
+            <div id="profile_member_login_step3_div" style="display:none;">
+            	<div class="container">
+                    <div class="pager">
+                        <ul>
+                        	<li><img src="images/pager3.png"></li>
+                        </ul>
+                    </div>
+                  <form enctype="multipart/form-data"  method="post" id="profile_member_step3_form" name="profile_member_step3_form" >
+                    <div  class="memberProfile">
+                    	<label>Keyword *</label>
+                        <input type="text" name="profile_keyword_keyword" id="profile_keyword_keyword" placeholder="Keyword *" class="boxSizing"></li>
+                   </div>
+                   			<input type="hidden" name="form_type" id="form_type" value="step3">
+                            <input type="hidden" name="userID2" id="userID2" value="">
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('profile_member_login_step2_div');">
+                        <input type="button" value="Save" class="inputBtn" onclick="return validateStep3();">
+                        <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('profile_member_login_step4_div');">
+                    </div>
+                  </form>
+                </div>        
+            </div>
+            
+            <div id="profile_member_login_step4_div" style="display:none;">
+            	<div class="container">
+                    <div class="pager">
+                        <ul>
+                        	<li><img src="images/pager4.png"></li>
+                        </ul>
+                    </div>
+                <form enctype="multipart/form-data"  method="post" id="profile_member_step4_form" name="profile_member_step4_form" >
+                    <div class="memberProfile">
+                    	<label>Height *</label>
+                        <input type="text" placeholder="Height *" class="boxSizing" id="profile_height_medical" name="profile_height_medical">
+                        <label>Height in Native Language</label>
+                        <input type="text" placeholder="Height in Native Language" class="boxSizing" id="profile_height_native_medical" name="profile_height_native_medical">
+                        <label>Weight *</label>
+                        <input type="text" placeholder="Weight *" class="boxSizing" id="profile_weight_medical" name="profile_weight_medical">
+                        <label>Weight in Native Language</label>
+                        <input type="text" placeholder="Weight in Native Language" class="boxSizing" id="profile_weight_native_medical" name="profile_weight_native_medical">
+                        <label>Blood Group *</label>
+                        <input type="text" placeholder="Blood Group *" class="boxSizing" id="profile_blood_medical" name="profile_blood_medical">
+                        <label>Blood Group in Native Language</label>
+                        <input type="text" placeholder="Blood Group in Native Language" class="boxSizing" id="profile_blood_native_medical" name="profile_blood_native_medical">
+                        <label>Disabilities</label>
+                        <input type="text" placeholder="Disabilities" class="boxSizing" id="profile_disabilities_medical" name="profile_disabilities_medical">
+                        <label>Disabilities in Native Language</label>
+                        <input type="text" placeholder="Disabilities in Native Language" class="boxSizing" id="profile_disabilities_native_medical" name="profile_disabilities_native_medical">
+                        <label>Drug / Substance Allergies</label>
+                        <input type="text" placeholder="Drug / Substance Allergies" class="boxSizing" id="profile_drug_medical" name="profile_drug_medical">
+                        <label>Drug / Substance Allergies in Native Language</label>
+                        <input type="text" placeholder="Drug / Substance Allergies in Native Language" class="boxSizing" id="profile_drug_native_medical" name="profile_drug_native_medical">
+                        <label>Food  Allergies</label>
+                        <input type="text" placeholder="Food  Allergies" class="boxSizing" id="profile_food_medical" name="profile_food_medical">
+                        <label>Food  Allergies in Native Language</label>
+
+                        <input type="text" placeholder="Food  Allergies in Native Language" class="boxSizing" id="profile_food_native_medical" name="profile_food_native_medical">
+                        <label>Vaccinations</label>
+                        <input type="text" placeholder="Vaccinations" class="boxSizing" id="profile_vaccinations_medical" name="profile_vaccinations_medical">
+                        <label>Vaccinations in Native Language</label>
+                        <input type="text" placeholder="Vaccinations in Native Language" class="boxSizing" id="profile_vaccinations_native_medical" name="profile_vaccinations_native_medical">
+                    </div>
+                    		<input type="hidden" name="form_type" id="form_type" value="step4">
+                            <input type="hidden" name="userID3" id="userID3" value="">
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('profile_member_login_step3_div');">
+                        <input type="button" value="Save" class="inputBtn" onclick="return validateStep4();">
+                        <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('profile_member_login_step5_div');">
+                    </div>
+                 </form>   
+                </div>        
+            </div>
+            
+             <div id="profile_member_login_step5_div" style="display:none;">
+            	<div class="container">
+                    <div class="pager">
+                        <ul>
+                        	<li><img src="images/pager5.png"></li>
+                        </ul>
+                    </div>
+                <form enctype="multipart/form-data"  method="post" id="profile_member_step5_form" name="profile_member_step5_form" >
+                    <div class="memberProfile">
+                    	<label>Insurance Company</label>
+                        <input type="text" placeholder="Insurance Company" class="boxSizing" id="profile_company_insurance" name="profile_company_insurance">
+                        <label>Insurance in Native Language</label>
+                        <input type="text" placeholder="Insurance Company in Native Language" class="boxSizing" id="profile_company_native_insurance" name="profile_company_native_insurance">
+                        <label>Policy Number</label>
+                        <input type="text" placeholder="Policy Number" class="boxSizing" id="profile_policy_insurance" name="profile_policy_insurance">
+                        <label>Policy Number in Native Language</label>
+                        <input type="text" placeholder="Policy Number in Native Language" class="boxSizing" id="profile_policy_native_insurance" name="profile_policy_native_insurance">
+                        <label>Duration of Policy</label>
+                        <input type="text" placeholder="Duration of Policy" class="boxSizing" id="profile_duration_insurance" name="profile_duration_insurance">
+                        <label>Duration of Policy in Native Language</label>
+                        <input type="text" placeholder="Duration of Policy in Native Language" class="boxSizing" id="profile_duration_native_insurance" name="profile_duration_native_insurance">
+                    </div>
+                    		<input type="hidden" name="form_type" id="form_type" value="step5">
+                            <input type="hidden" name="userID4" id="userID4" value="">
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('profile_member_login_step4_div');">
+                        <input type="button" value="Save" class="inputBtn" onclick="return validateStep5();">
+                        <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('profile_member_login_step6_div');">
+                    </div>
+                  </form>
+                </div>        
+            </div>
+            
+            <div id="profile_member_login_step6_div" style="display:none;">
+            	<div class="container">
+                    <div class="pager">
+                        <ul>
+                        	<li><img src="images/pager6.png"></li>
+                        </ul>
+                    </div>
+               <form enctype="multipart/form-data"  method="post" id="profile_member_step6_form" name="profile_member_step6_form" >
+                    <div class="memberProfile">
+                    	<label>Emergency Contact Name *</label>
+                        <input type="text" placeholder="Emergency Contact Name *" class="boxSizing" id="profile_contact_emergency" name="profile_contact_emergency">
+                        <label>Emergency Contact Name in Native Language</label>
+                        <input type="text" placeholder="Emergency Contact Name in Native Language" class="boxSizing" id="profile_contact_native_emergency" name="profile_contact_native_emergency">
+                        <label>Relationship *</label>
+                        <input type="text" placeholder="Relationship *" class="boxSizing" id="profile_relationship_emergency" name="profile_relationship_emergency">
+                        <label>Relationship in Native Language</label>
+                        <input type="text" placeholder="Relationship in Native Language" class="boxSizing" id="profile_relationship_native_emergency" name="profile_relationship_native_emergency">
+                        <label>Emergency Contact Email</label>
+                        <input type="text" placeholder="Emergency Contact Email" class="boxSizing" id="profile_email_emergency" name="profile_email_emergency">
+                        <label>Emergency Contact Number *</label>
+                        <input type="text" placeholder="Emergency Contact Number * (Country code- Area code- Number)" class="boxSizing" id="profile_number_emergency" name="profile_number_emergency">
+                        <label>Emergency Contact Name</label>
+                        <input type="text" placeholder="Emergency Contact Name" class="boxSizing" id="profile_contact_emergency2" name="profile_contact_emergency2">
+                        <label>Emergency Contact Name in Native Language</label>
+                        <input type="text" placeholder="Emergency Contact Name in Native Language" class="boxSizing" id="profile_contact_native_emergency2" name="profile_contact_native_emergency2">
+                        <label>Relationship</label>
+                        <input type="text" placeholder="Relationship" class="boxSizing" id="profile_relationship_emergency2" name="profile_relationship_emergency2">
+                        <label>Relationship in Native Language</label>
+                        <input type="text" placeholder="Relationship in Native Language" class="boxSizing" id="profile_relationship_native_emergency2" name="profile_relationship_native_emergency2">
+                        <label>Emergency Contact Email</label>
+                        <input type="text" placeholder="Emergency Contact Email" class="boxSizing" id="profile_email_emergency2" name="profile_email_emergency2">
+                        <label>Emergency Contact Number</label>
+                        <input type="text" placeholder="Emergency Contact Number" class="boxSizing" id="profile_number_emergency2" name="profile_number_emergency2">
+                        <label>Personal Doctor Name</label>
+                        <input type="text" placeholder="Personal Doctor Name" class="boxSizing" id="profile_doctor_name_emergency" name="profile_doctor_name_emergency">
+                        <label>Personal Doctor Name in Native Language</label>
+                        <input type="text" placeholder="Personal Doctor Name in Native Language" class="boxSizing" id="profile_doctor_name_native_emergency" name="profile_doctor_name_native_emergency">
+                        <label>Personal Doctor Contact</label>
+                        <input type="text" placeholder="Personal Doctor Contact" class="boxSizing" id="profile_doctor_contact_emergency" name="profile_doctor_contact_emergency">
+                    </div>
+                    	<input type="hidden" name="form_type" id="form_type" value="step6">
+                        <input type="hidden" name="userID5" id="userID5" value="">
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('profile_member_login_step5_div');">
+                        <input type="button" value="Save" class="inputBtn" onclick="return validateStep6();">
+                    </div>
+                </form>
+                </div>        
+            </div>
+            
+            <div id="member_login_step1_div" style="display:none;">
+            	<div class="container">
+            		<div class="pager">
+                        <ul>
+                        	<li><img src="images/pager.png"></li>
+                        </ul>
+                    </div>
+                    <div>
+                    	<ul class="myProfile">
+                    		<li><label>Member ID: </label><span id="member_id_basic"></span></li>
+                            <li><label>Email Address: </label><span id="email_id_basic"></span></li>
+                            <li><label>Picture: </label><span id=""><img src="" id="user_image_basic" alt="image"/></span></li>
+                            <li id="user_login_basic_li" style="display:none;"><label>Last Login: </label><span id="user_login_basic"></span></li>
+                            <li id="user_access_basic_li" style="display:none;"><label>Member since: </label><span id="user_access_basic"></span></li>
+                            <li id="user_modified_basic_li" style="display:none;"><label>Last Updated: </label><span id="user_modified_basic"></span></li>
+                        </ul>
+                    </div>
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('member_login_step2_div');">
+                    </div>
+            	</div>
+            	<div class="clear"></div>  
+            </div>
+            
+            <div id="member_login_step2_div" style="display:none;">
+            	<div class="container">
+            		<div class="pager">
+                        <ul>
+                        	<li><img src="images/pager2.png"></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="myProfile">
+                            <li><label>First Name: </label><span id="first_name_basic"></span></li>
+                            <li> <label>First Name in Native Language: </label><span id="first_name_native_basic"></span></li>
+                            <li>  <label>Last Name: </label><span id="last_name_basic"></span></li>
+                            <li> <label>Last Name in Native Language: </label><span id="last_name_native_basic"></span></li>
+                            <li><label>Date of Birth: </label><span id="dob_basic"></span></li>
+                            <li><label>Passport / ID: </label><span id="passport_id_basic"></span></li>
+                            <li><label>Scan Copy ID: </label><span id=""><img src="" id="user_passport_basic" alt="image"/></span></li>
+                            <li> <label>Gender: </label><span id="gender_basic"></span></li>
+                            <li><label>Address: </label><span id="address_basic"></span></li>
+                            <li>  <label>Address in Native Language: </label><span id="address_native_basic"></span></li>
+                            <li><label>Address2: </label><span id="address2_basic"></span></li>
+                            <li> <label>Address2 in Native Language: </label><span id="address2_native_basic"></span></li>
+                            <li>  <label>Country: </label><span id="country_basic"></span></li>
+                            <li> <label>Nationality: </label><span id="nationality_basic"></span></li>
+                            <li><label>Contact Number: </label><span id="contact_number_basic"></span></li>
+                            <li><label>Home Number: </label><span id="home_number_basic"></span></li>
+                            <li><label>Office Number: </label><span id="office_number_basic"></span></li>
+                        </ul>
+                        
+                    </div>
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('member_login_step1_div');">
+                        <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('member_login_step3_div');">
+                    </div>
+            	</div>
+            	<div class="clear"></div>  
+            </div>
+            
+            <div id="member_login_step3_div" style="display:none;">
+            	<div class="container">
+                    <div class="pager">
+                        <ul>
+                        	<li><img src="images/pager3.png"></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="myProfile">
+                        	<li><label>Keyword: </label><span id="keyword_keyword"></span></li>
+                        </ul>
+                    </div>
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('member_login_step2_div');">
+                        <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('member_login_step4_div');">
+                    </div>
+                </div>        
+            </div>
+            
+            <div id="member_login_step4_div" style="display:none;">
+            	<div class="container">
+                    <div class="pager">
+                        <ul>
+                        	<li><img src="images/pager4.png"></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="myProfile">
+                        	<li><label>Height: </label><span id="height_medical"></span></li><div class="clear"></div>
+                            <li><label>Height in Native Language: </label><span id="height_native_medical"></span></li><div class="clear"></div>
+                            <li><label>Weight: </label><span id="weight_medical"></span></li><div class="clear"></div>
+                            <li><label>Weight in Native Language: </label><span id="weight_native_medical"></span></li><div class="clear"></div>
+                            <li><label>Blood Group: </label><span id="blood_medical"></span></li><div class="clear"></div>
+                            <li><label>Blood Group in Native Language: </label><span id="blood_native_medical"></span></li><div class="clear"></div>
+                            <li><label>Disabilities: </label><span id="disabilities_medical"></span></li><div class="clear"></div>
+                            <li><label>Disabilities in Native Language: </label><span id="disabilities_native_medical"></span></li><div class="clear"></div>
+                            <li><label>Drug / Substance Allergies: </label><span id="drug_medical"></span></li><div class="clear"></div>
+                            <li><label>Drug / Substance Allergies in Native Language: </label><span id="drug_native_medical"></span></li><div class="clear"></div>
+                            <li><label>Food  Allergies: </label><span id="food_medical"></span></li><div class="clear"></div>
+                            <li><label>Food  Allergies in Native Language: </label><span id="food_native_medical"></span></li><div class="clear"></div>
+                            <li><label>Vaccinations: </label><span id="vaccinations_medical"></span></li><div class="clear"></div>
+                            <li><label>Vaccinations in Native Language: </label><span id="vaccinations_native_medical"></span></li>
+                        </ul>
+                    </div>
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('member_login_step3_div');">
+                        <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('member_login_step5_div');">
+                    </div>
+                </div>        
+            </div>
+            
+            <div id="member_login_step5_div" style="display:none;">
+            	<div class="container">
+                    <div class="pager">
+                        <ul>
+                        	<li><img src="images/pager5.png"></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="myProfile">
+                        	<li><label>Insurance Company: </label><span id="company_insurance"></span></li><div class="clear"></div>
+                            <li><label>Insurance Company in Native Language: </label><span id="company_native_insurance"></span></li><div class="clear"></div>
+                            <li><label>Policy Number: </label><span id="policy_insurance"></span></li><div class="clear"></div>
+                            <li><label>Policy Number in Native Language: </label><span id="policy_native_insurance"></span></li><div class="clear"></div>
+                            <li><label>Duration of Policy: </label><span id="duration_insurance"></span></li><div class="clear"></div>
+                            <li><label>Duration of Policy in Native Language: </label><span id="duration_native_insurance"></span></li><div class="clear"></div>
+                        </ul>
+                    </div>
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('member_login_step4_div');">
+                        <input type="button" value="Next" class="inputBtn" onclick="return displayDiv('member_login_step6_div');">
+                    </div>
+                </div>        
+            </div>
+            
+            <div id="member_login_step6_div" style="display:none" >
+            	<div class="container">
+                    <div class="pager">
+                        <ul>
+                        	<li><img src="images/pager6.png"></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="myProfile">
+                        	<li><label>Emergency Contact Name: </label><span id="contact_emergency"></span></li>
+                            <div class="clear"></div>
+                            <li><label>Emergency Contact Name in Native Language: </label><span id="contact_native_emergency"></span></li><div class="clear"></div>
+                            <li><label>Relationship: </label><span id="relationship_emergency"></span></li>
+                            <div class="clear"></div>
+                            <li><label>Relationship in Native Language: </label><span id="relationship_native_emergency"></span></li><div class="clear"></div>
+                            <li><label>Emergency Contact Email: </label><span id="email_emergency"></span></li><div class="clear"></div>
+                            <li><label>Emergency Contact Number: </label><span id="number_emergency"></span></li><div class="clear"></div>
+                            
+                            <li><label>Emergency Contact Name: </label><span id="contact_emergency2"></span></li><div class="clear"></div>
+                            <li><label>Emergency Contact Name in Native Language: </label><span id="contact_native_emergency2"></span></li><div class="clear"></div>
+                            <li><label>Relationship: </label><span id="relationship_emergency2"></span></li><div class="clear"></div>
+                            <li><label>Relationship in Native Language: </label><span id="relationship_native_emergency2"></span></li><div class="clear"></div>
+                            <li><label>Emergency Contact Email: </label><span id="email_emergency2"></span></li><div class="clear"></div>
+                            <li><label>Emergency Contact Number: </label><span id="number_emergency2"></span></li><div class="clear"></div>
+                            <li><label>Personal Doctor Name: </label><span id="doctor_name_emergency"></span></li><div class="clear"></div>
+                            <li><label>Personal Doctor Name in Native Language: </label><span id="doctor_name_native_emergency"></span></li><div class="clear"></div>
+                            <li><label>Personal Doctor Contact: </label><span id="doctor_contact_emergency"></span></li>
+                        </ul>
+                    </div>
+                    <div>
+                    	<div class="clear"></div> 
+                        <input type="button" value="Previous" class="inputBtn" onclick="return displayDiv('member_login_step5_div');">
+                    </div>
+                </div>        
+            </div>
+            
+            <div id="invite_friend_div" style="display:none;">
+            	<div class="container">
+                	
+            		<div class="pager">
+                    	<br>
+                    </div>
+            		<a href="javascript:void(0);" onclick="return facebookPost();"><img src="images/s-F.png" alt="Post on Facebook" /></a>
+            		<!--<a href="javascript:void(0);" onclick="window.plugins.socialsharing.shareViaFacebook('Message via Facebook', null /* img */, null /* url */, function() {console.log('share ok')}, function(errormsg){alert(errormsg)})"><img src="images/FBpost.png" alt="Post on Facebook" /></a>-->
+
+                    <br>
+                    <br>
+                    OR
+                    <br>
+                    <br>
+                    <a href="javascript:void(0);" onclick="return instagramPost();"><img src="images/s-I.png" alt="Post on Instagram" id="Instagram" /></a>
+                    <img src="http://www.phd911.com/sites/phd911.com/files/phd911.com_logo_app.png" id="phd_logo" style="display: none;">
+                    <canvas id="myCanvas" height="1200" width="720" onclick="return instagramPost();" style="display: none;">Your mobile does not support instagramsharing by app.</canvas>
+                    <!--<a href="javascript:void(0);" onclick="window.plugins.socialsharing.shareViaFacebook('Message via Facebook', null /* img */, null /* url */, function() {console.log('share ok')}, function(errormsg){alert(errormsg)})"><img src="images/FBpost.png" alt="Post on Facebook" /></a>-->
+                    <br>
+                    <br>
+                    OR
+                    <br>
+                    <br>
+                    <a href="javascript:void(0);" onclick="return twitterPost();"><img src="images/s-T.png" alt="Post on Facebook" /></a><br>
+                    <br>
+                    OR
+                    <br>
+                    <br>
+                    <a href="javascript:void(0);" onclick="return emailPost();"><img src="images/s-E.png" alt="Post on Facebook" /></a>
+                    <!--<br>
+                    <br>
+                    OR
+                    <br>
+                    <br>
+                    <form enctype="multipart/form-data"  method="post" id="invite_form" name="invite_form" >
+                    	<input type="text" placeholder="Email IDs" class="boxSizing" id="invite_emailids_text" name="invite_emailids_text" onBlur="return checkExisting('username','signup_username_text');">
+                        <p><small>*Please use comma(,) for multiple Email Addresses.</small></p>
+                        <div class="clear"></div> 
+                        <input type="button" value="Invite" class="inputBtn" onclick="return sendInvitations();">
+                    </form>-->
+            	</div>
+            	<div class="clear"></div>  
+            </div>
+            
+		</div>
+        
+        <div id="fb-root"></div>
+        
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+        <!--<script type="text/javascript" src="js/jquery.mobile-1.4.0.min.js"></script>-->
+        <script type="text/javascript" src="js/index.js"></script>
+        <!-- cordova facebook plugin -->
+		<script src="cdv-plugin-fb-connect.js"></script>
+	    <!-- facebook js sdk -->
+		<script src="facebook-js-sdk.js"></script>
+        <script>
+             <!-- These are the notifications that are displayed to the user through pop-ups if the above JS files does not exist in the same directory-->
+            /*if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined'))
+				//alert('Cordova variable does not exist. Check that you have included cordova.js correctly'); 
+				alert("Cordova variable does not exist. Please report this error to Admin");
+            if (typeof CDV == 'undefined')
+				alert("CDV variable does not exist. Please report this error to Admin");
+				//alert('CDV variable does not exist. Check that you have included cdv-plugin-fb-connect.js correctly');
+            if (typeof FB == 'undefined') 
+				//alert('FB variable does not exist. Check that you have included the Facebook JS SDK file.');
+				alert("FB variable does not exist. Please report this error to Admin");
+            */
+			
+			function facebookWallPost() {
+			    //console.log('Debug 1');
+//				var params = {
+//				    method: 'feed',
+//				    name: 'PHD911',
+//				    link: 'https://developers.facebook.com/docs/reference/dialogs/',
+//				    picture: 'http://www.phd911.com/sites/phd911.com/files/phd911_logo.png',
+//				    caption: 'Personal Health Data',
+//				    description: 'This service was created to protect individuals regardless of age, in the event of any Emergency be it Medical or Non-Medical in nature.'
+//				  };
+//				//console.log(params);
+//			    FB.ui(params, function(obj) { console.log(obj);});
+
+                var fbLoginSuccess = function (userData)
+                {
+                    facebookConnectPlugin.showDialog(
+                            {
+                                method: "apprequests",
+                                message: "check this out!."
+                            },
+                            function (data){alert("Success " + data);},
+                            function (error) {alert("ini error showdialog ni: " + error) }
+                    );
+
+                }
+                facebookConnectPlugin.login(["public_profile"],
+                        fbLoginSuccess,
+                        function (error) {
+                            //facebookConnectPlugin.logout(function(){alert("logout success")}, function() {alert("logout error")});
+                            messages.showErrorMessage("Something went wrong. Please try again.");
+                        }
+                );
+			}
+            
+            /*document.addEventListener('deviceready', function() {
+						  try {
+							  FB.init({ appId: 221904054669365, nativeInterface: CDV.FB, useCachedDialogs: false });
+							  //document.getElementById('data').innerHTML = "";
+						  } catch (e) {
+							alert(e);
+						  }
+					  }, false
+				);*/
+            </script>
+        <!--<script>
+			$("#member_login_step1_div").swiperight(function() {
+				alert("right");
+				displayDiv("member_login_step2_div");
+				//$.mobile.changePage("#page1");
+			});
+			 
+			// If you swipe your page right you screen will be filled by page1 content.
+			$("#member_login_step2_div").swipeleft(function() {
+				alert("left ");
+				displayDiv("member_login_step1_div");
+				//$.mobile.changePage("#page2");
+			});
+		</script>-->
+		<script type="text/javascript">
+		
+			//var sitePath="http://syonserver.com/";
+			//var sitePath="http://192.168.0.4/";
+			var sitePath="http://www.phd911.com/";
+			
+			//Below will come through onload API
+			var currentDate=01;
+			var currentMonth=03;
+			var currentYear=2014;
+			var backDivsStack=new Array();
+			addYears("signup_dob_year_select",'');
+			
+			document.addEventListener("backbutton", backButtonHandler, false);
+			document.addEventListener("menubutton", menuButtonHandler, false);
+			
+			function openFileExplorer(fileControlID)
+			{
+				document.getElementById(fileControlID).click();
+			}
+			
+			function validateStep1()
+			{
+				if(document.getElementById("profile_member_id_basic").value.trim()=="")
+				{
+					alert("Member ID field is required.");
+					document.getElementById("profile_member_id_basic").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_username_hidden").value==0)
+				{
+					alert("The name "+document.getElementById("profile_member_id_basic").value.trim()+" is already taken.");
+					document.getElementById("profile_member_id_basic").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_email_id_basic").value.trim()=="")
+				{
+					alert("E-mail address field is required.");
+					document.getElementById("profile_email_id_basic").focus();
+					return false;
+				}
+				else if(!email_check(document.getElementById("profile_email_id_basic").value.trim()))
+				{
+					alert("E-mail address should be valid.");
+					document.getElementById("profile_email_id_basic").focus();
+					return false;
+				}
+				//else if((document.getElementById("profile_user_image_basic_file").value.trim()!="") && (!image_check(document.getElementById("profile_user_image_basic_file").value.trim())))
+//				{
+//					alert("Image should be valid, Only JPG/PNG/GIF/JPEG are allowed.");
+//					document.getElementById("profile_user_image_basic_file").focus();
+//					return false;
+//				}
+				else
+				{
+					//save
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=updateuserinfo',
+						type: 'POST',
+						data: $("#profile_member_step1_form").serialize(),
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+							else
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						   //alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					});
+				}
+			}
+			
+			function validateStep2()
+			{
+				if(document.getElementById("profile_first_name_basic").value.trim()=="")
+				{
+					alert("First Name field is required.");
+					document.getElementById("profile_first_name_basic").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_last_name_basic").value.trim()=="")
+				{
+					alert("Last Name field is required.");
+					document.getElementById("profile_last_name_basic").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_passport_id_basic").value.trim()=="")
+				{
+					alert("Passport/ID field is required.");
+					document.getElementById("profile_passport_id_basic").focus();
+					return false;
+				}
+//				else if((document.getElementById("profile_passport_file").value.trim()!="") && (!image_check(document.getElementById("profile_passport_file").value.trim())))
+//				{
+//					alert("Image should be valid, Only JPG/PNG/GIF/JPEG are allowed.");
+//					document.getElementById("profile_passport_file").focus();
+//					return false;
+//				}
+				else if(document.getElementById("profile_address_basic").value.trim()=="")
+				{
+					alert("Address field is required.");
+					document.getElementById("profile_address_basic").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_country_select").value.trim()=="")
+				{
+					alert("Country field is required.");
+					document.getElementById("profile_country_select").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_nationality_select").value.trim()=="")
+				{
+					alert("Nationality field is required.");
+					document.getElementById("profile_nationality_select").focus();
+					return false;
+				}
+				else if((document.getElementById("profile_contact_number_basic").value.trim()!="") && (!DoValidatePhone(document.getElementById("profile_contact_number_basic").value)))
+				{
+					alert("Invalid Contact Number.");
+					document.getElementById("profile_contact_number_basic").focus();
+					return false;
+				 }
+				 else if((document.getElementById("profile_home_number_basic").value.trim()!="") && (!DoValidatePhone(document.getElementById("profile_home_number_basic").value)))
+				{
+					alert("Invalid Home Number.");
+					document.getElementById("profile_home_number_basic").focus();
+					return false;
+				 }
+				  else if((document.getElementById("profile_office_number_basic").value.trim()!="") && (!DoValidatePhone(document.getElementById("profile_office_number_basic").value)))
+				{
+					alert("Invalid Office Number.");
+					document.getElementById("profile_office_number_basic").focus();
+					return false;
+				 }
+				else
+				{
+					//save
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=updateuserinfo',
+						type: 'POST',
+						data: $("#profile_member_step2_form").serialize(),
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+							else
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						   //alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					});
+				}
+			}
+			
+			function validateStep3()
+			{
+				if(document.getElementById("profile_keyword_keyword").value.trim()=="")
+				{
+					alert("Keyword field is required.");
+					document.getElementById("profile_keyword_keyword").focus();
+					return false;
+				}
+				else 
+				{
+					//save 
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=updateuserinfo',
+						type: 'POST',
+						data: $("#profile_member_step3_form").serialize(),
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+							else
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						   //alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					});
+				}
+			}
+			function validateStep4()
+			{
+				if(document.getElementById("profile_height_medical").value.trim()=="")
+				{
+					alert("Height field is required.");
+					document.getElementById("profile_height_medical").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_weight_medical").value.trim()=="")
+				{
+					alert("Weight field is required.");
+					document.getElementById("profile_weight_medical").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_blood_medical").value.trim()=="")
+				{
+					alert("Blood group field is required.");
+					document.getElementById("profile_blood_medical").focus();
+					return false;
+				}
+				else 
+				{
+					//save
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=updateuserinfo',
+						type: 'POST',
+						data: $("#profile_member_step4_form").serialize(),
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+							else
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						   //alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					}); 
+				}
+			}
+			
+			function validateStep5()
+			{
+				//no validation
+				//save
+				displayLoadingDiv();
+				$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=updateuserinfo',
+						type: 'POST',
+						data: $("#profile_member_step5_form").serialize(),
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+							else
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						   //alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					}); 
+			}
+			
+			function validateStep6()
+			{
+				if(document.getElementById("profile_contact_emergency").value.trim()=="")
+				{
+					alert("Emergency Contact Name field is required.");
+					document.getElementById("profile_contact_emergency").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_relationship_emergency").value.trim()=="")
+				{
+					alert("Relationship field is required.");
+					document.getElementById("profile_relationship_emergency").focus();
+					return false;
+				}
+				else if(document.getElementById("profile_number_emergency").value.trim()=="")
+				{
+					alert("Emergency Contact Number field is required.");
+					document.getElementById("profile_number_emergency").focus();
+					return false;
+				}
+				else if(!DoValidatePhone(document.getElementById("profile_number_emergency").value))
+				{
+					alert("Invalid Contact Number.");
+					document.getElementById("profile_number_emergency").focus();
+					return false;
+				}
+				else 
+				{
+					//save
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=updateuserinfo',
+						type: 'POST',
+						data: $("#profile_member_step6_form").serialize(),
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+							else
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						   //alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					});  
+				}
+			}
+			
+			function backButtonHandler()
+			{
+				divID=backDivsStack.pop();
+				if(!divID)
+				{
+					displayDiv("main_home_div");
+					return false;
+				}
+				divID=backDivsStack.pop();
+				if(!divID)
+				{
+					displayDiv("main_home_div");
+					return false;
+				}
+				displayDiv(divID);
+			}
+			
+			function menuButtonHandler()
+			{
+				displayDiv("main_home_div");
+			}
+			
+			function displaySearchDiv(divID)
+			{
+				document.getElementById("member_id_text").value="";
+				document.getElementById("keyword_text").value="";
+				displayDiv(divID);
+			}
+			
+			function displayInviteDiv(divID)
+			{
+				//document.getElementById("invite_emailids_text").value="";
+				displayDiv(divID);
+			}
+			
+			
+			function setFieldValue(controlID, nodeObject, fromwhere)
+			{
+				if(nodeObject)
+				{
+					if(fromwhere=="login")
+					{
+						document.getElementById("profile_"+controlID).value=nodeObject.nodeValue;
+					}
+					else
+					{
+						document.getElementById(controlID).innerHTML=nodeObject.nodeValue;
+					}
+				}
+			}
+			
+			function setProfileInfo(data,fromwhere)
+			{
+				displayLoadingDiv();
+				if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+				{
+					var profilePrefix="";
+					if(fromwhere=="login")
+					{
+						document.getElementById("login_check_hidden").value=1;
+						document.getElementById("login_home_span").innerHTML='Profile';
+						
+						document.getElementById("register_button_li").style.display="none";
+						document.getElementById("invite_button_li").style.display="";
+                        document.getElementById("logout_button_li").style.display="";
+						
+						document.getElementById("login_User_hidden").value=data.getElementsByTagName("userBasicInfo")[0].getElementsByTagName("uid")[0].childNodes[0].nodeValue;
+						
+						profilePrefix="profile_";
+					}
+					
+					//Assign Values to variuos fields
+					
+					setFieldValue("member_id_basic",data.getElementsByTagName("userBasicInfo")[0].getElementsByTagName("name")[0].childNodes[0] ,fromwhere);
+					setFieldValue("email_id_basic",data.getElementsByTagName("userBasicInfo")[0].getElementsByTagName("mail")[0].childNodes[0] ,fromwhere);
+					if(document.getElementById("login_User_hidden").value!=0)
+					{
+						document.getElementById("userID").value=document.getElementById("login_User_hidden").value;
+						document.getElementById("userID1").value=document.getElementById("login_User_hidden").value;
+						document.getElementById("userID2").value=document.getElementById("login_User_hidden").value;
+						document.getElementById("userID3").value=document.getElementById("login_User_hidden").value;
+						document.getElementById("userID4").value=document.getElementById("login_User_hidden").value;
+						document.getElementById("userID5").value=document.getElementById("login_User_hidden").value;
+					}
+					
+					if(data.getElementsByTagName("userBasicInfo")[0].getElementsByTagName("picture")[0].childNodes[0])
+					{
+						document.getElementById(profilePrefix+"user_image_basic").src=data.getElementsByTagName("userBasicInfo")[0].getElementsByTagName("picture")[0].childNodes[0].nodeValue;
+						
+					}
+					
+					if(fromwhere=="membersearch")
+					{
+						setFieldValue("user_login_basic",data.getElementsByTagName("userBasicInfo")[0].getElementsByTagName("login")[0].childNodes[0] ,fromwhere);
+						setFieldValue("user_access_basic",data.getElementsByTagName("userBasicInfo")[0].getElementsByTagName("created")[0].childNodes[0] ,fromwhere);
+						setFieldValue("user_modified_basic",data.getElementsByTagName("userBasicInfo")[0].getElementsByTagName("modified")[0].childNodes[0] ,fromwhere);
+
+						document.getElementById("user_login_basic_li").style.display="";
+						document.getElementById("user_access_basic_li").style.display="";
+						document.getElementById("user_modified_basic_li").style.display="";
+					}
+					else //Login
+					{
+						document.getElementById("user_login_basic_li").style.display="none";
+						document.getElementById("user_access_basic_li").style.display="none";
+						document.getElementById("user_modified_basic_li").style.display="none";
+					}
+					
+					//Step 2
+					setFieldValue("first_name_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_first_name_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("first_name_native_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_first_name_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("last_name_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_last_name_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("last_name_native_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_last_name_2nd_value")[0].childNodes[0] ,fromwhere);
+					
+					if(fromwhere=="membersearch")
+					{
+						if(data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_dob_value")[0].childNodes[0])
+						{
+							document.getElementById("dob_basic").innerHTML=data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_dob_value")[0].childNodes[0].nodeValue;
+						}
+					}
+					else
+					{
+						if(data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_dob_year_value")[0].childNodes[0])
+						{
+							addYears("profile_dob_year_select",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_dob_year_value")[0].childNodes[0].nodeValue);
+						}
+						else
+						{
+							addYears("profile_dob_year_select",'');
+						}
+						if(data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_dob_month_value")[0].childNodes[0])
+						{
+							document.getElementById("profile_dob_month_select").value=data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_dob_month_value")[0].childNodes[0].nodeValue;
+						}
+						else
+						{
+							document.getElementById("profile_dob_month_select").value='';
+						}
+						if(data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_dob_day_value")[0].childNodes[0])
+						{
+							document.getElementById("profile_dob_day_select").value=data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_dob_day_value")[0].childNodes[0].nodeValue;
+						}
+						else
+						{
+							document.getElementById("profile_dob_day_select").value='';
+						}
+						//document.getElementById("profile_dob_year_select").value="";
+					}
+					
+					setFieldValue("passport_id_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_ic_number_value")[0].childNodes[0] ,fromwhere);
+					
+					if(data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_scanned_passport_image")[0].childNodes[0])
+					{
+						document.getElementById(profilePrefix+"user_passport_basic").src=data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_scanned_passport_image")[0].childNodes[0].nodeValue;
+						//alert(":"+data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_scanned_passport_image")[0].childNodes[0].nodeValue+":");
+					}
+					if(data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_gender_value")[0].childNodes[0]) {
+                        if (fromwhere == "membersearch") {
+                            document.getElementById("gender_basic").innerHTML = data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_gender_value")[0].childNodes[0].nodeValue;
+                        }
+                        else {
+                            if (data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_gender_value")[0].childNodes[0].nodeValue == "Male") {
+                                document.getElementById("profile_gender_male_radio").checked = true;
+                            }
+                            else if (data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_gender_value")[0].childNodes[0].nodeValue == "Female") {
+                                document.getElementById("profile_gender_female_radio").checked = true;
+                            }
+                        }
+                    }
+					setFieldValue("address_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_address_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("address_native_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_address_2nd_value")[0].childNodes[0] ,fromwhere);
+					//setFieldValue("address2_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_address_2_value")[0].childNodes[0] ,fromwhere);
+					//setFieldValue("address2_native_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_address_2_2nd_value")[0].childNodes[0] ,fromwhere);
+					
+					if(fromwhere=="membersearch")
+					{
+						if(data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_country_value")[0].childNodes[0])
+						{
+							document.getElementById("country_basic").innerHTML=data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_country_value")[0].childNodes[0].nodeValue;
+						}
+						if(data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_nationality_value")[0].childNodes[0])
+						{
+							document.getElementById("nationality_basic").innerHTML=data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_nationality_value")[0].childNodes[0].nodeValue;
+						}
+					}
+					else
+					{
+						displayCountryDiv("profile_country_select",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_country_value")[0].childNodes[0].nodeValue,data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_nationality_value")[0].childNodes[0].nodeValue,data);
+						//document.getElementById("profile_country_select").value="";
+					}
+					setFieldValue("contact_number_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_contact_number_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("home_number_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_home_number_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("office_number_basic",data.getElementsByTagName("userPersonalInfo")[0].getElementsByTagName("field_office_number_value")[0].childNodes[0] ,fromwhere);
+					
+					//Step 3 Keyword
+					setFieldValue("keyword_keyword",data.getElementsByTagName("userKeywordInfo")[0].getElementsByTagName("field_keyword_value")[0].childNodes[0] ,fromwhere);
+					
+					//Step 4 Medical
+					setFieldValue("height_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_height_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("height_native_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_height_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("weight_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_weight_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("weight_native_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_weight_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("blood_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_blood_type_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("blood_native_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_blood_type_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("drug_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_allergies_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("drug_native_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_allergies_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("food_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_cholesterol_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("food_native_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_cholesterol_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("vaccinations_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_vaccination_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("vaccinations_native_medical",data.getElementsByTagName("userMedicalInfo")[0].getElementsByTagName("field_vaccination_2nd_value")[0].childNodes[0] ,fromwhere);
+
+					
+					//Step 5 Insurance
+					setFieldValue("company_insurance",data.getElementsByTagName("userInsuranceInfo")[0].getElementsByTagName("field_insurance_company_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("company_native_insurance",data.getElementsByTagName("userInsuranceInfo")[0].getElementsByTagName("field_insurance_company_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("policy_insurance",data.getElementsByTagName("userInsuranceInfo")[0].getElementsByTagName("field_policy_number_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("policy_native_insurance",data.getElementsByTagName("userInsuranceInfo")[0].getElementsByTagName("field_policy_number_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("duration_insurance",data.getElementsByTagName("userInsuranceInfo")[0].getElementsByTagName("field_duration_policy_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("duration_native_insurance",data.getElementsByTagName("userInsuranceInfo")[0].getElementsByTagName("field_duration_policy_2nd_value")[0].childNodes[0] ,fromwhere);
+					
+					//Step 6 Emergency
+					setFieldValue("contact_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_emergency_name_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("contact_native_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_emergency_name_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("relationship_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_relationship_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("relationship_native_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_relationship_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("email_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_emergency_email_email")[0].childNodes[0] ,fromwhere);
+					setFieldValue("number_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_emergency_number_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("contact_emergency2",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_emergency_name2_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("contact_native_emergency2",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_emergency_name2_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("relationship_emergency2",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_relationship2_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("relationship_native_emergency2",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_relationship2_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("email_emergency2",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_emergency_email2_email")[0].childNodes[0] ,fromwhere);
+					setFieldValue("number_emergency2",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_emergency_number2_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("doctor_name_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_personal_doctor_name_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("doctor_name_native_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_personal_doctor_name_2nd_value")[0].childNodes[0] ,fromwhere);
+					setFieldValue("doctor_contact_emergency",data.getElementsByTagName("userEmergencyInfo")[0].getElementsByTagName("field_personal_doctor_value")[0].childNodes[0] ,fromwhere);
+				
+					displayDiv(profilePrefix+"member_login_step1_div");
+				}
+				else
+				{
+					hideLoadingDiv();
+					alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+				}
+						
+			}
+			
+			function signupValidation()
+			{
+				if(document.getElementById("signup_username_text").value.trim()=="")
+				{
+					alert("Username field is required.");
+					document.getElementById("signup_username_text").focus();
+					return false;
+				}
+				/*else if(!checkExisting('username','signup_username_text'))
+				{
+					return false;
+				}*/
+				else if(document.getElementById("signup_username_hidden").value==0)
+				{
+					alert("The name "+document.getElementById("signup_username_text").value.trim()+" is already taken.");
+					document.getElementById("signup_username_text").focus();
+					return false;
+				}
+
+				else if(document.getElementById("signup_email_text").value.trim()=="")
+				{
+					alert("E-mail address field is required.");
+					document.getElementById("signup_email_text").focus();
+					return false;
+				}
+				else if(!email_check(document.getElementById("signup_email_text").value.trim()))
+				{
+					alert("E-mail address should be valid.");
+					document.getElementById("signup_email_text").focus();
+					return false;
+				}
+				else if(document.getElementById("signup_firstname_text").value.trim()=="")
+				{
+					alert("First Name field is required.");
+					document.getElementById("signup_firstname_text").focus();
+					return false;
+				}
+				else if(document.getElementById("signup_lastname_text").value.trim()=="")
+				{
+					alert("Last Name field is required.");
+					document.getElementById("signup_lastname_text").focus();
+					return false;
+				}
+				/*else if(document.getElementById("signup_dob_day_select").value.trim()=="")
+				{
+					alert("Last Name field is required.");
+					document.getElementById("signup_dob_day_select").focus();
+					return false;
+				}
+				else if(document.getElementById("signup_month_day_select").value.trim()=="")
+				{
+					alert("Last Name field is required.");
+					document.getElementById("signup_month_day_select").focus();
+					return false;
+				}
+				else if(document.getElementById("signup_dob_year_select").value.trim()=="")
+				{
+					alert("Last Name field is required.");
+					document.getElementById("signup_dob_year_select").focus();
+					return false;
+				}*/
+				else if(document.getElementById("signup_passport_text").value.trim()=="")
+				{
+					alert("Passport / ID field is required.");
+					document.getElementById("signup_passport_text").focus();
+					return false;
+				}
+				else if(document.getElementById("signup_address_textarea").value.trim()=="")
+				{
+					alert("Address field is required.");
+					document.getElementById("signup_address_textarea").focus();
+					return false;
+				}
+				else
+				{	
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=signup',
+						type: 'POST',
+						data: $("#signup_form").serialize(),
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							//alert(data);
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+							else
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+//						   alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					});
+				}
+			}
+			
+			function checkExisting(fieldLabel,fieldID)
+			{
+				if(document.getElementById(fieldID).value.trim()!="")
+				{
+					displayLoadingDiv();
+					//alert(document.getElementById("login_User_hidden").value.trim());
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=checkexisting&fieldLabel='+fieldLabel+'&fieldValue='+document.getElementById(fieldID).value.trim()+'&uID='+document.getElementById("login_User_hidden").value.trim(),
+						type: 'POST',
+	
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								document.getElementById("signup_"+fieldLabel+"_hidden").value=1;
+								document.getElementById("profile_"+fieldLabel+"_hidden").value=1;
+								return true;
+							}
+							else
+							{
+								alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+								document.getElementById("signup_"+fieldLabel+"_hidden").value=0;
+								document.getElementById("profile_"+fieldLabel+"_hidden").value=0;
+								return false;
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						   //alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					});
+				}
+			}
+			
+			function displayUsersProfile()
+			{
+				if(document.getElementById("login_check_hidden").value==1)
+				{
+					displayDiv('profile_member_login_step1_div');
+				}
+				else
+				{
+					displayDiv('member_login_div');
+				}
+			}
+
+            function displayHomePage(){
+                document.getElementById("login_check_hidden").value=0;
+                document.getElementById("login_home_span").innerHTML='Login';
+
+                document.getElementById("register_button_li").style.display="";
+                document.getElementById("invite_button_li").style.display="none";
+                document.getElementById("logout_button_li").style.display="none";
+
+                document.getElementById("login_User_hidden").value="0";
+
+                displayDiv('main_home_div');
+            }
+			
+			function loginValidation()
+			{
+				if(document.getElementById("login_member_id_text").value.trim()=="")
+				{
+					alert("Member ID field is required.");
+					document.getElementById("login_member_id_text").focus();
+					return false;
+				}
+				else if(document.getElementById("login_keyword_text").value.trim()=="")
+				{
+					alert("Password field is required.");
+					document.getElementById("login_keyword_text").focus();
+					return false;
+				}
+				else
+				{
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=login&member_id_text='+document.getElementById("login_member_id_text").value.trim()+'&keyword_text='+document.getElementById("login_keyword_text").value.trim(),
+						type: 'POST',
+	
+						crossDomain: true,
+						success: function (data) {
+								//hideLoadingDiv();
+								setProfileInfo(data,"login");
+							},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						   //alert("xhr.status: " + xhr.status);
+//						   alert("xhr.statusText: " + xhr.statusText);
+//						   alert("xhr.readyState: " + xhr.readyState);
+//						   alert("Error:"+thrownError);
+						}
+					});
+				}
+			}
+			
+			function searchValidation()
+			{
+				if(document.getElementById("member_id_text").value.trim()=="")
+				{
+					alert("Member ID field is required.");
+					document.getElementById("member_id_text").focus();
+					return false;
+				}
+				else if(document.getElementById("keyword_text").value.trim()=="")
+				{
+					alert("Keyword field is required.");
+					document.getElementById("keyword_text").focus();
+					return false;
+				}
+				else
+				{
+					displayLoadingDiv();
+					$.ajax({
+
+						url: sitePath+'phd911/APIs/checkurl.php?action=keywordsearch&uid='+document.getElementById("member_id_text").value.trim()+'&field_keyword_value='+document.getElementById("keyword_text").value.trim(),
+						type: 'POST',
+	
+						crossDomain: true,
+						success: function (data) {
+							//hideLoadingDiv();
+							setProfileInfo(data,"membersearch");
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+							if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						}
+					});
+				}
+			}
+			
+			function sendInvitations()
+			{
+				if(document.getElementById("invite_emailids_text").value.trim()=="")
+				{
+					alert("Email ID field is required.");
+					document.getElementById("invite_emailids_text").focus();
+					return false;
+				}
+				else
+				{
+					var errorFlag=0;
+					var inviteEmailArr=document.getElementById("invite_emailids_text").value.trim().split(",");
+					for(var i=0; i<inviteEmailArr.length; i++ )
+					{
+						if(inviteEmailArr[i].trim()!="")
+						{
+							if(!email_check(inviteEmailArr[i]))
+							{
+								errorFlag=1;
+								break;
+							}
+						}
+					}
+					if(errorFlag==1)
+					{
+						alert("Email IDs are not in proper format.");
+						document.getElementById("invite_emailids_text").focus();
+						return false;
+					}
+					else
+					{
+						displayLoadingDiv();
+						$.ajax({
+							url: sitePath+'phd911/APIs/checkurl.php?action=invitefriend&emailids='+document.getElementById("invite_emailids_text").value.trim()+'&username='+document.getElementById("profile_first_name_basic").value,
+							
+							type: 'POST',
+							crossDomain: true,
+							success: function (data) {
+								hideLoadingDiv();
+								if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+								{
+									alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+									return true;
+								}
+								else
+								{
+									alert(data.getElementsByTagName("message")[0].getElementsByTagName("messageText")[0].childNodes[0].nodeValue);
+									return false;
+								}
+							},
+							error: function (xhr, ajaxOptions, thrownError) {
+								hideLoadingDiv();
+								if(xhr.status==200)
+								{
+									generalError();
+								}
+								else
+								{
+									networkError();
+								}
+							}
+						});
+					}
+				}
+			}
+			
+			function displayDiv(divID)
+			{
+				var prevDiv=backDivsStack.pop();
+				if(prevDiv!=divID)
+				{
+					backDivsStack.push(prevDiv);
+				}
+				
+				backDivsStack.push(divID);
+				document.getElementById("main_home_div").style.display="none";
+				document.getElementById("member_search_div").style.display="none";
+				document.getElementById("member_login_div").style.display="none";
+				document.getElementById("member_register_step1_div").style.display="none";
+				document.getElementById("embassy_div").style.display="none";
+				document.getElementById("member_login_step1_div").style.display="none";
+				document.getElementById("member_login_step2_div").style.display="none";
+				document.getElementById("member_login_step3_div").style.display="none";
+				document.getElementById("member_login_step4_div").style.display="none";
+				document.getElementById("member_login_step5_div").style.display="none";
+				document.getElementById("member_login_step6_div").style.display="none";
+				document.getElementById("profile_member_login_step1_div").style.display="none";
+				document.getElementById("profile_member_login_step2_div").style.display="none";
+				document.getElementById("profile_member_login_step3_div").style.display="none";
+				document.getElementById("profile_member_login_step4_div").style.display="none";
+				document.getElementById("profile_member_login_step5_div").style.display="none";
+				document.getElementById("profile_member_login_step6_div").style.display="none";
+				document.getElementById("invite_friend_div").style.display="none";
+				
+				document.getElementById(divID).style.display="";
+				hideLoadingDiv();
+			}
+			
+			function openAmbassyPage()
+			{
+				if(document.getElementById("ambassy_country_select").value!="")
+				{
+					window.open(document.getElementById("ambassy_country_select").value, '_blank');
+					//navigator.app.loadUrl(document.getElementById("ambassy_country_select").value, { openExternal:true });
+				}
+			}
+			
+
+			function displayEmbassyDiv(divID)
+			{
+				//alert("Option Length:"+document.getElementById('ambassy_country_select').options.length);
+				document.getElementById('ambassy_country_select').value="";
+				if(document.getElementById('ambassy_country_select').options.length<2)
+				{
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=countryEmbassySelect',
+						type: 'POST',
+	
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								var currNode=data.getElementsByTagName("countries")[0].getElementsByTagName("countrydata");
+								var embassySelect = document.getElementById("ambassy_country_select");
+								for (i=0;i<currNode.length;i++)
+								{
+									var embassyOption = document.createElement("option");
+									embassyOption.text = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue; 									embassyOption.value = decodeURIComponent(currNode[i].getElementsByTagName("countryurl")[0].childNodes[0].nodeValue);
+									embassySelect.add(embassyOption);
+									displayDiv(divID);
+								}
+							}
+							else
+							{
+								alert("Looks like there is some problem. Please try after some time.");
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+						  	if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						}
+					});
+				}
+				else
+				{
+					displayDiv(divID);
+				}
+			}
+			
+			function displayRegistrationDiv(divID)
+			{
+				if(document.getElementById('signup_country_select').options.length<2)
+				{
+					displayLoadingDiv();
+					$.ajax({
+						url: sitePath+'phd911/APIs/checkurl.php?action=countryNationalitySelect',
+						type: 'POST',
+	
+						crossDomain: true,
+						success: function (data) {
+							hideLoadingDiv();
+							if(data.getElementsByTagName("message")[0].getElementsByTagName("messageType")[0].childNodes[0].nodeValue=="SUCCESS")
+							{
+								var currNode=data.getElementsByTagName("countries")[0].getElementsByTagName("countrydata");
+								var selectControl = document.getElementById("signup_country_select");
+								for (i=0;i<currNode.length;i++)
+								{
+									var selectOption = document.createElement("option");
+									selectOption.text = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue;
+									selectOption.value = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue;
+									selectControl.add(selectOption);
+								}
+								
+								var currNode=data.getElementsByTagName("nationality")[0].getElementsByTagName("countrydata");
+								var selectControl = document.getElementById("signup_nationality_select");
+								for (i=0;i<currNode.length;i++)
+								{
+									var selectOption = document.createElement("option");
+									selectOption.text = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue;
+									selectOption.value = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue;
+									selectControl.add(selectOption);
+								}
+								
+								displayDiv(divID);
+							}
+							else
+							{
+								alert("Looks like there is some problem. Please try after some time.");
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							hideLoadingDiv();
+						  	if(xhr.status==200)
+							{
+								generalError();
+							}
+							else
+							{
+								networkError();
+							}
+						}
+					});
+				}
+				else
+				{
+					displayDiv(divID);
+				}
+			}
+			
+			function networkError()
+			{
+				alert("Please check your internet connection.");
+				return false;
+			}
+			
+			function generalError()
+			{
+				alert("Looks like there is some problem. Please try after some time.");
+				return false;
+			}
+			
+			function addYears(selectID,selYear)
+			{
+				var selectControl = document.getElementById(selectID);
+				for (i=currentYear;i>=eval(currentYear-100);i--)
+				{
+					var selectOption = document.createElement("option");
+					selectOption.text = i; 									
+					selectOption.value = i;
+					selectControl.add(selectOption);
+					if(selYear!='')
+					{
+						if(selYear==selectOption.value)
+						{
+							document.getElementById("profile_dob_year_select").value=selYear;
+						}
+					}
+				}
+			}
+			
+			function displayCountryDiv(divID,selCountry,SelNationality,data)
+			{
+				var currNode=data.getElementsByTagName("countries")[0].getElementsByTagName("countrydata");
+				var selectControl = document.getElementById("profile_country_select");
+				for (i=0;i<currNode.length;i++)
+				{
+					var selectOption = document.createElement("option");
+					selectOption.text = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue;
+					selectOption.value = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue;
+					selectControl.add(selectOption);
+					if(selCountry.trim()!='')
+					{
+						if(selCountry.trim()==selectOption.value.trim())
+						{
+							//document.getElementById("profile_country_select").value=selCountry;
+							document.getElementById("profile_country_select").selectedIndex=(i+1);
+						}
+					}
+				}
+				
+				var currNode=data.getElementsByTagName("nationality")[0].getElementsByTagName("countrydata");
+				var selectControl = document.getElementById("profile_nationality_select");
+				for (i=0;i<currNode.length;i++)
+				{
+					var selectOption = document.createElement("option");
+					selectOption.text = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue;
+					selectOption.value = currNode[i].getElementsByTagName("countryname")[0].childNodes[0].nodeValue;
+					selectControl.add(selectOption);
+					if(SelNationality.trim()!='')
+					{
+						if(SelNationality.trim()==selectOption.value.trim())
+						{
+							//alert(SelNationality);
+							//document.getElementById("profile_nationality_select").value=SelNationality;
+							document.getElementById("profile_nationality_select").selectedIndex=(i+1);
+						}
+					}
+				}
+			}
+			
+			function displayLoadingDiv()
+			{
+				document.getElementById("loading_div").style.display="";
+			}
+			function hideLoadingDiv()
+			{
+				document.getElementById("loading_div").style.display="none";
+			}
+			
+			//Function to checking valid email format
+			function email_check(val)
+			{
+				var regexp = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+				if(regexp.test(val))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			//Function to checking valid image extension 
+			function image_check(val)
+			{
+				if((val.indexOf(".jpg")<=0) && (val.indexOf(".png")<=0) && (val.indexOf(".gif")<=0) && (val.indexOf(".jpeg")<=0) && (val.indexOf(".JPG")<=0) && (val.indexOf(".PNG")<=0) && (val.indexOf(".GIF")<=0) && (val.indexOf(".JPEG")<=0) && (val.indexOf(".bmp")<=0) && (val.indexOf(".BMP")<=0)) 
+				{
+					return false;
+				}
+				else
+				{
+					return true;
+				}
+			}
+			//function to checking valid phone number
+			function DoValidatePhone(phone)
+			{
+				var reg=/^[0123456789.-]+$/;
+				var isGoodMatch = phone.match(reg);
+				//alert(isGoodMatch)
+				if (!isGoodMatch) {
+					return false;
+				}
+				else  
+				{    
+					return true;  
+				} 
+			}
+			window.onerror = function(e, url, line){
+				hideLoadingDiv();	
+			  alert('onerror: ' + e + ' URL:' + url + ' Line:' + line);
+			  console.log('onerror: ' + e + ' URL:' + url + ' Line:' + line);
+			  return true; 
+			}
+
+            function facebookPost()
+            {
+                //alert("FB post");
+                window.plugins.socialsharing.shareViaFacebook('sent you an invitaiton to join PHD911. PHD911 is a premier provider of Personal and Health Data and information tools.<br>This service was created to protect individuals regardless of age, in the event of any Emergency be it Medical or Non-Medical in nature.<br>Please click following link to join with us:', 'http://www.phd911.com/sites/phd911.com/files/phd911_logo.png', 'http://www.phd911.com/index.php', function (){ shareSuccess('facebook'); },function (){ shareFail('facebook'); })
+            }
+            function instagramPost()
+            {
+
+
+                Instagram.isInstalled(function (err, installed){
+                    if (installed) {
+                        console.log("Instagram is", installed); // installed app version on Android
+                    } else {
+                        alert("Please insatll instagram first !");
+                        return;
+                    }
+                });
+
+                //http://www.phd911.com/sites/phd911.com/files/phd911_logo.png
+                var c = document.getElementById("myCanvas");
+                var ctx = c.getContext("2d");
+                var img = document.getElementById("phd_logo");
+                ctx.drawImage(img,10,10);
+
+                Instagram.share("myCanvas", "PHD911", function (err) {
+                    if (err) {
+
+                    } else {
+
+                    }
+                });
+                //window.plugins.socialsharing.share('sent you an invitaiton to join PHD911. PHD911 is a premier provider of Personal and Health Data and information tools.<br>This service was created to protect individuals regardless of age, in the event of any Emergency be it Medical or Non-Medical in nature.<br>Please click following link to join with us:', null, null, 'http://www.phd911.com/index.php', function (){ shareSuccess('instagram'); },function (){ shareFail('instagram'); })
+                /*Instagram.isInstalled(function (err, installed) {
+                    if (installed) {
+                        alert("Instagram is"+ installed); // installed app version on Android
+                        Instagram.share('http://www.phd911.com/sites/phd911.com/files/phd911_logo.png', 'test',  function (err) {
+                            alert("in share fun");
+                            if (err) {
+                                alert("not shared");
+                            } else {
+                                alert("shared");
+                            }
+                        });
+                    } else {
+                        alert("Instagram is not installed");
+                    }
+                });*/
+
+                //window.plugins.socialsharing.share('sent you an invitaiton to join PHD911. PHD911 is a premier provider of Personal and Health Data and information tools.<br>This service was created to protect individuals regardless of age, in the event of any Emergency be it Medical or Non-Medical in nature.<br>Please click following link to join with us:', null, null, 'http://www.phd911.com/index.php', function (){ shareSuccess('instagram'); },function (){ shareFail('instagram'); })
+                /*Instagram.share('http://www.phd911.com/sites/phd911.com/files/phd911_logo.png',   function (err) {
+                    alert("in share fun");
+                    if (err) {
+                        alert("not shared");
+                    } else {
+                        alert("shared");
+                    }
+                });*/
+
+                /*PinterestPlugin.pin("http://placekitten.com",
+                        "http://placekitten.com/500/400", "Test",
+                        function() {
+                            alert("Pinterest pin success.");
+                        },
+                        function() {
+                            alert("Pinterest pin failed.");
+                        });*/
+            }
+            function twitterPost()
+            {
+                //alert("twtr post");
+                window.plugins.socialsharing.shareViaTwitter('sent you an invitaiton to join PHD911.', 'http://www.phd911.com/sites/phd911.com/files/phd911_logo.png', 'http://www.phd911.com/index.php',function (){ shareSuccess('twitter'); },function (){ shareFail('twitter'); })
+            }
+            function emailPost()
+            {
+                //alert("email post");
+                window.plugins.socialsharing.shareViaEmail('sent you an invitaiton to join PHD911. PHD911 is a premier provider of Personal and Health Data and information tools.<br>This service was created to protect individuals regardless of age, in the event of any Emergency be it Medical or Non-Medical in nature.<br>Please click following link to join with us: http://www.phd911.com/index.php', 'sent you an invitation.', null,function (){ shareSuccess('email'); },function (){ shareFail('email'); })
+            }
+            function shareSuccess(socialType)
+            {
+                //alert(socialType+" Success.");
+            }
+            function shareFail(socialType)
+            {
+                alert("Looks like there is some issue in sharing with "+socialType);
+            }
+        </script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+    </body>
+</html>
